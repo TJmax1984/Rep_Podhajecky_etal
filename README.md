@@ -1,5 +1,6 @@
-# Rep_Podhajecky_etal
-In this depository there is code to analyze ring ingression from midplane movies manually and to plot it.
+# Rep\_Podhajecky\_etal
+
+In this depository there is code to analyze ring ingression from midplane movies manually and to plot it. There is also code to perform PIV analysis on the cortical plane of movies. 
 
 FOR ANALYZING RING INGRESSION FROM A SINGLE MIDPLANE SLICE:
 
@@ -10,12 +11,15 @@ FOR ANALYZING RING INGRESSION FROM A SINGLE MIDPLANE SLICE:
 5. Run the Ring\_ingression\_analysis.m code. This should be done for EACH condition to be analyzed separately
 6. Specify the pixel size (in um) and the time interval (dt, in s) in the pop up window that appears when running Ring\_ingression\_analysis.m.
 7. then specify the path in the pop up window that appears when running Ring\_ingression\_analysis.m
-8. The user subsequently has to manually click on the 2 protruding fronts of the ring. 
+8. The user subsequently has to manually click on the 2 protruding fronts of the ring.
 9. Running Ring\_ingression\_analysis.m returns Ring\_closure.mat files in each embryo directory. This will subsequently be used by cytokinesis\_analysis.m for extracting all the data.
-10. Now run the cytokinesis_analysis.m code. This can be done once for all the conditions in the experiemnt that you want to compare.  
+10. Now run the cytokinesis\_analysis.m code. This can be done once for all the conditions in the experiemnt that you want to compare.
 11. A GUI pop-up window appears in which you have to specify the number of conditions, followed by another pop-up window in which the conditions, conditions names, and various other parameters are specified.
 12. You can choose to have a temp shift experiment analyzed, in case different quantities will be extracted than when you extract data from 'normal' constant temp experiments.
 13. The code returns one large data table in which various quantities are saved. It saves this data table as mat file and csv file in the directory 1 upstream of the first condition.
-14. The code also returns single quantity plots: duration of cytokinesis, mean ingression velocity, fluo density ratio (end/begin)   
-15. The code also returns traces: density in the ring over time, ring diameter over time, ring diameter vs density, under different normalization/binning routines.     
-16. Plots are saved as fig and png files in the same directory. 
+14. The code also returns single quantity plots: duration of cytokinesis, mean ingression velocity, fluo density ratio (end/begin)
+15. The code also returns traces: density in the ring over time, ring diameter over time, ring diameter vs density, under different normalization/binning routines.
+16. Plots are saved as fig and png files in the same directory.
+
+FOR PIV ANALYSIS:
+
