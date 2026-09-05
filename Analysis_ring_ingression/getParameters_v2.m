@@ -1,5 +1,5 @@
-function params = getParameters(nDirectories)
-
+function params = getParameters_v2(nDirectories)
+%% This function extracts the relevant user provided parameters from a GUI window  
     % Return structure
     params = [];
 
@@ -59,16 +59,12 @@ function params = getParameters(nDirectories)
     % First additional numeric field
     uilabel(fig,'Position',[250 y 80 22],'Text','BG ch1:');
     
-    num3 = uieditfield(fig,'numeric','Position',[320 y 100 22],'Value',100);
+    num3 = uieditfield(fig,'numeric','Position',[320 y 100 22],'Value',101);
     
     % Second additional numeric field
     uilabel(fig,'Position',[460 y 80 22],'Text','BG ch2:');
     
-    num4 = uieditfield(fig,'numeric','Position',[530 y 100 22],'Value',100);
-
-
-    % Checkbox
-    check1 = uicheckbox(fig,'Text','Tick if temperature shifts are done','Position',[20 y 200 22]);
+    num4 = uieditfield(fig,'numeric','Position',[530 y 100 22],'Value',101);
 
     y = y - 40;
 
@@ -95,7 +91,6 @@ function params = getParameters(nDirectories)
 
         params.pixel_size = num1.Value;
         params.no_channels = num2.Value;
-        params.temp_shift = check1.Value;
         params.name_ch1 = text1.Value;
         params.name_ch2 = text2.Value;
         params.BG_ch1 = num3.Value;

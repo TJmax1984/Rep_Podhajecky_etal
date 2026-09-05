@@ -3,7 +3,7 @@
 
 % First the ingressing ring fronts need to be tracked by running
 % Ring_ingression_analysis.m. 
-% Differences from EralyFlows_v11:
+% Differences from EarlyFlows_v11:
 % - Timepoints will be derived with respect to ring ingression status.
 % - No mask will be made, PIV will be done on a square surrounding the
 %   clicked first coordinates of the ring. Bins will be made according to the
