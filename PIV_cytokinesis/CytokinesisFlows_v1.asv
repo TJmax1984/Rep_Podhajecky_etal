@@ -58,8 +58,8 @@
 clear all, close all % clear all varialbes, close figures
 
 %% Specify where the data is and what it is
-Path{1} = 'C:\Users\teije\Desktop\DataPaperRoman\FirstSubmission\LP133_nmy2GFP_unc60RNAi\PIV_cortex_repeat_050926\1 L4440';
-Path{2} = 'C:\Users\teije\Desktop\DataPaperRoman\FirstSubmission\LP133_nmy2GFP_unc60RNAi\PIV_cortex_repeat_050926\2 L4440 unc60';
+Path{1} = 'C:\Users\teije\Desktop\DataPaperRoman\FirstSubmission\LP133_nmy2GFP_unc60RNAi\PIV_cortex - Copy\1 L4440';
+Path{2} = 'C:\Users\teije\Desktop\Fluo_measurements_midplaneAllan\nmy2GFP_unc60RNAi\2 L4440 unc60';
 
 %Caseleg={'L4440';'rga-3';'ani-1';'rga-3;ani-1'}; %
 Caseleg={'L4440';'unc-60';'+ cyk-1 12 hr';'+ cyk-1 18 hr';'+ cyk-1 24 hr';'+ cyk-1 48 hr'}; %
@@ -86,37 +86,37 @@ for cond = 1:length(Path)
         Path{cond} = Path{cond}(1:end-1);
     end
 end
-data_table_PIV = generate_input_cyto_data_table(Path,Caseleg);
-data_table_PIV.mean_int_ch1 = NaN(height(data_table_PIV), 1); 
+data_table = generate_input_cyto_data_table(Path,Caseleg);
+data_table.mean_int_ch1 = NaN(height(data_table), 1); 
 
 % Now add the desired results columns to the table and pre-allocate 
-data_table_PIV.vc = NaN(height(data_table_PIV), 1);   
-data_table_PIV.vx_pos = NaN(height(data_table_PIV), 1);   
-data_table_PIV.vmag = NaN(height(data_table_PIV), 1);   
-data_table_PIV.cr = NaN(height(data_table_PIV), 1);   
+data_table.vc = NaN(height(data_table), 1);   
+data_table.vx_pos = NaN(height(data_table), 1);   
+data_table.vmag = NaN(height(data_table), 1);   
+data_table.cr = NaN(height(data_table), 1);   
 
 %% Loop through the conditions and run PIV 
-for i = 1:height(data_table_PIV)
+for i = 1:height(data_table)
     
     % generate mask
-    mask = generate_coarse_mask(data_table_PIV.x_emb_center_after_rot(i),data_table_PIV.y_emb_center_after_rot(i),data_table_PIV.rot_degree(i), data_table_PIV.movie_pathname(i));
+    mask = generate_coarse_mask(data_table.x_emb_center_after_rot(i),data_table.y_emb_center_after_rot(i),data_table.rot_degree(i), data_table.movie_pathname(i));
 
-    specifyframes = [data_table_PIV.first_frame(i):data_table_PIV.last_frame(i)];
+    specifyframes = [data_table.first_frame(i):data_table.last_frame(i)];
 
     %% Run PIVlab
     % check whether it has been run first
-    if exist(strcat(data_table_PIV.movie_path_only(i),filesep,'PIV_analysis_v11', filesep, 'Results_PIVlab',filesep,'PIVlab_res.mat')) ~= 2 %check if the directory exists
-        PIVlab_commandline_v11(data_table_PIV.movie_pathname(i),specifyframes,PIV_box_size,mask)
+    if exist(strcat(data_table.movie_path_only(i),filesep,'PIV_analysis_v11', filesep, 'Results_PIVlab',filesep,'PIVlab_res.mat')) ~= 2 %check if the directory exists
+        PIVlab_commandline_v11(data_table.movie_pathname(i),specifyframes,PIV_box_size,mask)
     end
-    load(strcat(data_table_PIV.movie_path_only(i),filesep,'PIV_analysis_v11', filesep, 'Results_PIVlab',filesep,'PIVlab_res.mat'))
+    load(strcat(data_table.movie_path_only(i),filesep,'PIV_analysis_v11', filesep, 'Results_PIVlab',filesep,'PIVlab_res.mat'))
     
     %% Rotate velocity fields
     % Generate rotated flow analysis folder if it doesn't yet exist
-    if exist(strcat(data_table_PIV.movie_path_only(i),filesep, 'PIV_analysis_v11', filesep, 'Rotated_flow_field'),'dir') ~= 7 %check if the directory exists
-        mkdir(strcat(data_table_PIV.movie_path_only(i),filesep, 'PIV_analysis_v11', filesep, 'Rotated_flow_field'));
+    if exist(strcat(data_table.movie_path_only(i),filesep, 'PIV_analysis_v11', filesep, 'Rotated_flow_field'),'dir') ~= 7 %check if the directory exists
+        mkdir(strcat(data_table.movie_path_only(i),filesep, 'PIV_analysis_v11', filesep, 'Rotated_flow_field'));
         % rotate the mask
-        mask_rot = imrotate(mask,data_table_PIV.rot_degree(i));
-        save(strcat(data_table_PIV.movie_path_only(i),filesep,'PIV_analysis_v11', filesep,'Rotated_flow_field',filesep,'mask_rot.mat'),'mask_rot')
+        mask_rot = imrotate(mask,data_table.rot_degree(i));
+        save(strcat(data_table.movie_path_only(i),filesep,'PIV_analysis_v11', filesep,'Rotated_flow_field',filesep,'mask_rot.mat'),'mask_rot')
         
         % pre-allocate rotated vectors
         no_rows=length(PIVlab_res.x{1}(:,1));
@@ -125,10 +125,10 @@ for i = 1:height(data_table_PIV)
         % loop though timepoints and rotate the images + flow fields
         for time = 1:length(PIVlab_res.u_filt)
             % rotate image
-            im = double(imread(data_table_PIV.movie_pathname(i),data_table_PIV.first_frame(i)+time-1));
-            im_rot = imrotate(im,data_table_PIV.rot_degree(i),'bilinear');           
+            im = double(imread(data_table.movie_pathname(i),data_table.first_frame(i)+time-1));
+            im_rot = imrotate(im,data_table.rot_degree(i),'bilinear');           
             if time == 1
-                save(strcat(data_table_PIV.movie_path_only(i),filesep,'PIV_analysis_v11', filesep,'Rotated_flow_field',filesep,'im_rot.mat'),'im_rot')
+                save(strcat(data_table.movie_path_only(i),filesep,'PIV_analysis_v11', filesep,'Rotated_flow_field',filesep,'im_rot.mat'),'im_rot')
             end
             im_x_center_rot = 0.5*length(im_rot(1,:));
             im_y_center_rot = 0.5*length(im_rot(:,1));
@@ -137,11 +137,11 @@ for i = 1:height(data_table_PIV)
             % vyrot. Note: the minus sign for the flow field rotation. Flow
             % field needs to be rotated in the direction opposite of the
             % image itself...
-            rot_flow = Rot_PIV_vectors(PIVlab_res.x{time}(:),PIVlab_res.y{time}(:),PIVlab_res.u_filt{time}(:),PIVlab_res.v_filt{time}(:),-deg2rad(data_table_PIV.rot_degree(i)),[data_table_PIV.im_center_x(i), data_table_PIV.im_center_y(i)],im_center_xy_rot);
+            rot_flow = Rot_PIV_vectors(PIVlab_res.x{time}(:),PIVlab_res.y{time}(:),PIVlab_res.u_filt{time}(:),PIVlab_res.v_filt{time}(:),-deg2rad(data_table.rot_degree(i)),[data_table.im_center_x(i), data_table.im_center_y(i)],im_center_xy_rot);
             % overlay rotated vectors
             overlay_PIV_vectors(im_rot,rot_flow);
             title(strcat('frame ',num2str(specifyframes(time))))
-            export_fig(gcf,strcat(data_table_PIV.movie_path_only(i),filesep,'PIV_analysis_v11', filesep,'Rotated_flow_field',filesep,'frame',num2str(specifyframes(time)),'.tif'),'-q101','-m2','-r200')
+            export_fig(gcf,strcat(data_table.movie_path_only(i),filesep,'PIV_analysis_v11', filesep,'Rotated_flow_field',filesep,'frame',num2str(specifyframes(time)),'.tif'),'-q101','-m2','-r200')
             rotated_vectors(:,:,time) = rot_flow;
             % assemble rotated movie in 3D array
             if time == 1
@@ -150,9 +150,9 @@ for i = 1:height(data_table_PIV)
             rotated_movie(:,:,time) = im_rot;
         end
         % save rotated movie as mat file
-        save(strcat(data_table_PIV.movie_path_only(i),filesep,'PIV_analysis_v11', filesep,'Rotated_flow_field',filesep,'rotated_movie.mat'),'rotated_movie')
+        save(strcat(data_table.movie_path_only(i),filesep,'PIV_analysis_v11', filesep,'Rotated_flow_field',filesep,'rotated_movie.mat'),'rotated_movie')
         % save rotated vectors as mat file
-        save(strcat(data_table_PIV.movie_path_only(i),filesep,'PIV_analysis_v11', filesep,'Rotated_flow_field',filesep,'rotated_vectors.mat'),'rotated_vectors')
+        save(strcat(data_table.movie_path_only(i),filesep,'PIV_analysis_v11', filesep,'Rotated_flow_field',filesep,'rotated_vectors.mat'),'rotated_vectors')
         clear rotated_vectors im_rot mask_rot rotated_movie rotated_movie_ch2
     end % end of if statement that asks whether Rotated_flowfield exists
     
@@ -165,35 +165,35 @@ for i = 1:height(data_table_PIV)
     % load(strcat(data_table.movie_path_only(i),filesep,'PIV_analysis_v11', filesep,'Rotated_flow_field',filesep,'mask_rot.mat'));
 
      % Do binning
-    if exist(strcat(data_table_PIV.movie_path_only(i),filesep, 'AP_cyto_bins'),'dir') ~= 7
-        mkdir(strcat(data_table_PIV.movie_path_only(i),filesep, 'AP_cyto_bins'));      
-        bin_features = binning_stripe_coords_cyto(data_table_PIV.x_emb_center_after_rot(i),data_table_PIV.y_emb_center_after_rot(i),bins_size);
+    if exist(strcat(data_table.movie_path_only(i),filesep, 'AP_cyto_bins'),'dir') ~= 7
+        mkdir(strcat(data_table.movie_path_only(i),filesep, 'AP_cyto_bins'));      
+        bin_features = binning_stripe_coords_cyto(data_table.x_emb_center_after_rot(i),data_table.y_emb_center_after_rot(i),bins_size);
     
-        save(strcat(data_table_PIV.movie_path_only(i),filesep,'AP_cyto_bins',filesep,'bin_features.mat'),'bin_features')
+        save(strcat(data_table.movie_path_only(i),filesep,'AP_cyto_bins',filesep,'bin_features.mat'),'bin_features')
         clear bin_features
     end
 
     %% Perform binning of the flow field
-    if exist(strcat(data_table_PIV.movie_path_only(i),filesep, 'PIV_analysis_v11', filesep, 'Binning_flow_field'),'dir') ~= 7 %check if the directory exists
-        mkdir(strcat(data_table_PIV.movie_path_only(i),filesep, 'PIV_analysis_v11', filesep, 'Binning_flow_field'));
+    if exist(strcat(data_table.movie_path_only(i),filesep, 'PIV_analysis_v11', filesep, 'Binning_flow_field'),'dir') ~= 7 %check if the directory exists
+        mkdir(strcat(data_table.movie_path_only(i),filesep, 'PIV_analysis_v11', filesep, 'Binning_flow_field'));
         
         % first take a time average of the flow period. Note: This removes
         % information in chaotic behavior, i.e., fast chaotic flows will
         % give the same mean values as slow consistent flows.
-        load(strcat(data_table_PIV.movie_path_only(i),filesep,'PIV_analysis_v11', filesep,'Rotated_flow_field',filesep,'rotated_vectors.mat'));
+        load(strcat(data_table.movie_path_only(i),filesep,'PIV_analysis_v11', filesep,'Rotated_flow_field',filesep,'rotated_vectors.mat'));
         rot_vec_mean = mean(rotated_vectors,3,'omitnan');
         % load the rotated image mat file
-        load(strcat(data_table_PIV.movie_path_only(i),filesep,'PIV_analysis_v11', filesep,'Rotated_flow_field',filesep,'im_rot.mat'));
-        load(strcat(data_table_PIV.movie_path_only(i),filesep,'AP_cyto_bins',filesep,'bin_features.mat'))
+        load(strcat(data_table.movie_path_only(i),filesep,'PIV_analysis_v11', filesep,'Rotated_flow_field',filesep,'im_rot.mat'));
+        load(strcat(data_table.movie_path_only(i),filesep,'AP_cyto_bins',filesep,'bin_features.mat'))
         bin_xcoords = bin_features.bin_x_coords;   
         emb_center_y = bin_features.ecenter_y;
         
         % now do the binning on the time-averaged flow field
         binned_vectors = binning_flow_field(im_rot,rot_vec_mean,bin_xcoords,emb_center_y,half_stripewidth);
-        save(strcat(data_table_PIV.movie_path_only(i),filesep,'PIV_analysis_v11', filesep,'Binning_flow_field',filesep,'binned_vectors.mat'),'binned_vectors')
+        save(strcat(data_table.movie_path_only(i),filesep,'PIV_analysis_v11', filesep,'Binning_flow_field',filesep,'binned_vectors.mat'),'binned_vectors')
         % convert to um/min. Note: this is the first thime that is done
         binned_vectors_ummin = binned_vectors*convert_pix_ummin;
-        save(strcat(data_table_PIV.movie_path_only(i),filesep,'PIV_analysis_v11', filesep,'Binning_flow_field',filesep,'binned_vectors_ummin.mat'),'binned_vectors_ummin')
+        save(strcat(data_table.movie_path_only(i),filesep,'PIV_analysis_v11', filesep,'Binning_flow_field',filesep,'binned_vectors_ummin.mat'),'binned_vectors_ummin')
         % And plot the AP velocity/speed profiles
         plot(binned_vectors_ummin(1,:),'r') % plot x vel
         hold on
@@ -205,7 +205,7 @@ for i = 1:height(data_table_PIV)
         legend({'X velocity','Y velocity','Speed'})
         grid on
         hold off
-        export_fig(gcf,strcat(data_table_PIV.movie_path_only(i),filesep,'PIV_analysis_v11', filesep,'velocity_prof.jpg'))
+        export_fig(gcf,strcat(data_table.movie_path_only(i),filesep,'PIV_analysis_v11', filesep,'velocity_prof.jpg'))
         close all
         clear binned_vectors binned_vectors_ummin
     end
@@ -221,10 +221,10 @@ for i = 1:height(data_table_PIV)
     % data_table.cr(i)=cr;
 
     %% Now extract the fluorescence intensity of the channel used for PIV
-    if exist(strcat(data_table_PIV.movie_path_only(i),filesep, 'fluo_intensities'),'dir') ~= 7 %check if the directory exists
-        mkdir(strcat(data_table_PIV.movie_path_only(i),filesep, 'fluo_intensities'));
+    if exist(strcat(data_table.movie_path_only(i),filesep, 'fluo_intensities'),'dir') ~= 7 %check if the directory exists
+        mkdir(strcat(data_table.movie_path_only(i),filesep, 'fluo_intensities'));
         % load the entire rotated movie
-        load(strcat(data_table_PIV.movie_path_only(i),filesep,'PIV_analysis_v11', filesep,'Rotated_flow_field',filesep,'rotated_movie.mat'));       
+        load(strcat(data_table.movie_path_only(i),filesep,'PIV_analysis_v11', filesep,'Rotated_flow_field',filesep,'rotated_movie.mat'));       
         % take the mean over time, from the first timepoint analyzed by PIV to 'int_frames' later  
         if length(rotated_movie(1,1,:))<int_frames % in case the total length is smaller than int_frames, then just take the mean over all timeframes
             mean_fluo_im = mean(rotated_movie(:,:,:),3,'omitnan');
@@ -233,16 +233,14 @@ for i = 1:height(data_table_PIV)
         end
         % now extract the gradient along the AP axis in the same bins as used
         % for PIV analysis
-        load(strcat(data_table_PIV.movie_path_only(i),filesep,'AP_cyto_bins',filesep,'bin_features.mat'))
+        load(strcat(data_table.movie_path_only(i),filesep,'AP_cyto_bins',filesep,'bin_features.mat'))
         fluo_int_bins = AP_grad_cyto_fluo(mean_fluo_im,bin_features,half_stripewidth);
-        data_table_PIV.fluo_grad_bin(i) = {fluo_int_bins};
         % save fluorescence intensity profile
-        save(strcat(data_table_PIV.movie_path_only(i),filesep, 'fluo_intensities',filesep,'fluo_int_bin.mat'),'fluo_int_bins')        % put mean intensity in middle bins in the data table
+        save(strcat(data_table.movie_path_only(i),filesep, 'fluo_intensities',filesep,'fluo_int_bin.mat'),'fluo_int_bins')        % put mean intensity in middle bins in the data table
         % And also extract the gradient along the AP axis without binning,
         % while taking the same ROI around the ring
         fluo_int_cont = AP_grad_cyto_fluo_cont(mean_fluo_im,bin_features,half_stripewidth);
-        data_table_PIV.fluo_grad_cont(i) = {fluo_int_cont};
-        save(strcat(data_table_PIV.movie_path_only(i),filesep, 'fluo_intensities',filesep,'fluo_int_cont.mat'),'fluo_int_cont')
+        save(strcat(data_table.movie_path_only(i),filesep, 'fluo_intensities',filesep,'fluo_int_cont.mat'),'fluo_int_cont')
         
         % show rotated time averaged and int profile plot and save
         t = tiledlayout(3,1,'TileSpacing','compact','Padding','compact');
@@ -260,12 +258,12 @@ for i = 1:height(data_table_PIV)
         ylabel('fluorescence intensity (a.u.)')
         xlabel('distance from ring (um)')
         title('intensity along AP axis')
-        export_fig(gcf,strcat(data_table_PIV.movie_path_only(i),filesep, 'fluo_intensities',filesep,'time_averaged_int_grad.jpg'))
+        export_fig(gcf,strcat(data_table.movie_path_only(i),filesep, 'fluo_intensities',filesep,'time_averaged_int_grad.jpg'))
         clear fluo_int_bins
     end            
     % Add mean intensity of the middle bins to the data_table
-    load(strcat(data_table_PIV.movie_path_only(i),filesep, 'fluo_intensities',filesep,'fluo_int_bin.mat'),'fluo_int_bins')
-    data_table_PIV.mean_int_ch1(i) = mean(fluo_int_bins(middle_bins));
+    load(strcat(data_table.movie_path_only(i),filesep, 'fluo_intensities',filesep,'fluo_int_bin.mat'),'fluo_int_bins')
+    data_table.mean_int_ch1(i) = mean(fluo_int_bins(middle_bins));
     close all
     clear fluo_int_bins
 
